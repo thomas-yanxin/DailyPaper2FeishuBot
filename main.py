@@ -45,6 +45,7 @@ def map_paper_info(paper_info: dict) -> dict:
     """整理论文信息为指定格式"""
     authors = [author['name'] for author in paper_info['paper']["authors"]]
     return {
+        "id": paper_info['paper']['id'],
         "title": paper_info['paper']["title"],
         "authors": ", ".join(authors),
         "summary": paper_info['paper']["summary"],
@@ -81,6 +82,12 @@ def generate_card_elements(num: int, paper_info: dict) -> list:
         "tag": "div",
         "text": {
             "content": f"**关键词**：{paper_info['ai_keywords']}",
+            "tag": "lark_md"
+        }
+    }, {
+        "tag": "div",
+        "text": {
+            "content": f"**地址**：'https://arxiv.org/pdf/' + {paper_info['id']}",
             "tag": "lark_md"
         }
     }]
