@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 
 import requests
+import schedule
 
 # 飞书机器人配置
 WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxxx"
@@ -37,7 +38,7 @@ def get_paper_info() -> list:
     recent_papers = [
         paper for paper in data 
         if time.mktime(time.strptime(paper['publishedAt'], '%Y-%m-%dT%H:%M:%S.%fZ')) > time_48h_ago
-    ]
+    ][:5]
     return recent_papers
 
 def map_paper_info(paper_info: dict) -> dict:
@@ -110,16 +111,27 @@ def send_feishu_message(timestamp: str, sign: str, elements: list) -> None:
 
 def main():
     """主函数"""
-    timestamp, sign = gen_sign(WEBHOOK_SECRET)
-    papers = get_paper_info()
+    # 使用schedule库实现定时任务
     
-    for num, paper in enumerate(papers):
-        time.sleep(2)  # 避免请求过快
-        paper_info = map_paper_info(paper)
-        print(paper_info)
+    def job():
+        timestamp, sign = gen_sign(WEBHOOK_SECRET)
+        papers = get_paper_info()
         
-        elements = generate_card_elements(num, paper_info)
-        send_feishu_message(timestamp, sign, elements)
+        for num, paper in enumerate(papers):
+            time.sleep(2)  # 避免请求过快
+            paper_info = map_paper_info(paper)
+            print(paper_info)
+            
+            elements = generate_card_elements(num, paper_info)
+            send_feishu_message(timestamp, sign, elements)
+    
+    # 设置每天上午10:30执行任务
+    schedule.every().day.at("10:30").do(job)
+    
+    # 持续运行，等待定时任务
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 if __name__ == '__main__':
     main()
