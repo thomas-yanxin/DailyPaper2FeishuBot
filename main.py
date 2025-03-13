@@ -11,8 +11,8 @@ import requests
 import schedule
 
 # 飞书机器人配置
-WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxxx"
-WEBHOOK_SECRET = "xxxxxx"
+WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxxxxxxxxx"
+WEBHOOK_SECRET = "xxxxxxxxxxxxxxxxxxxxxxx"
 
 def gen_sign(secret: str) -> tuple[str, str]:
     """生成飞书机器人签名"""
@@ -38,18 +38,27 @@ def get_paper_info() -> list:
     recent_papers = [
         paper for paper in data 
         if time.mktime(time.strptime(paper['publishedAt'], '%Y-%m-%dT%H:%M:%S.%fZ')) > time_48h_ago
-    ][:5]
-    return recent_papers
+    ]
+    ready_papers = []
+    for paper in recent_papers:
+        try:
+            paper_info = map_paper_info(paper)
+            ready_papers.append(paper_info)
+        except Exception as e:
+            print(f"Error processing paper: {paper['paper']['id']}. Error: {e}")
+    
+    return ready_papers[:5]
 
 def map_paper_info(paper_info: dict) -> dict:
     """整理论文信息为指定格式"""
-    authors = [author['name'] for author in paper_info['paper']["authors"]]
+    paper = paper_info['paper']
+    authors = [author['name'] for author in paper["authors"]]
     return {
-        "id": paper_info['paper']['id'],
-        "title": paper_info['paper']["title"],
+        "id": paper['id'],
+        "title": paper["title"],
         "authors": ", ".join(authors),
-        "summary": paper_info['paper']["summary"],
-        "ai_keywords": ", ".join(paper_info['paper']["ai_keywords"]),
+        "summary": paper["summary"],
+        "ai_keywords": ", ".join(paper.get("ai_keywords")),
     }
 
 def generate_card_elements(num: int, paper_info: dict) -> list:
@@ -87,7 +96,7 @@ def generate_card_elements(num: int, paper_info: dict) -> list:
     }, {
         "tag": "div",
         "text": {
-            "content": f"**地址**：'https://arxiv.org/pdf/' + {paper_info['id']}",
+            "content": f"**地址**：https://arxiv.org/pdf/{paper_info['id']}",
             "tag": "lark_md"
         }
     }]
@@ -126,10 +135,9 @@ def main():
         
         for num, paper in enumerate(papers):
             time.sleep(2)  # 避免请求过快
-            paper_info = map_paper_info(paper)
-            print(paper_info)
+            print(paper)
             
-            elements = generate_card_elements(num, paper_info)
+            elements = generate_card_elements(num, paper)
             send_feishu_message(timestamp, sign, elements)
     
     # 设置每天上午10:30执行任务
