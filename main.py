@@ -54,11 +54,10 @@ def map_paper_info(paper_info: dict) -> dict:
     paper = paper_info['paper']
     authors = [author['name'] for author in paper["authors"]]
     return {
-        "id": paper['id'],
         "title": paper["title"],
         "authors": ", ".join(authors),
         "summary": paper["summary"],
-        "ai_keywords": ", ".join(paper.get("ai_keywords")),
+        "pdf_url": 'https://arxiv.org/pdf/' + paper['id'],
     }
 
 def generate_card_elements(num: int, paper_info: dict) -> list:
@@ -78,25 +77,13 @@ def generate_card_elements(num: int, paper_info: dict) -> list:
     }, {
         "tag": "div",
         "text": {
-            "content": f"**作者**：{paper_info['authors']}",
-            "tag": "lark_md"
-        }
-    }, {
-        "tag": "div",
-        "text": {
             "content": f"**摘要**：{paper_info['summary']}",
             "tag": "lark_md"
         }
     }, {
         "tag": "div",
         "text": {
-            "content": f"**关键词**：{paper_info['ai_keywords']}",
-            "tag": "lark_md"
-        }
-    }, {
-        "tag": "div",
-        "text": {
-            "content": f"**地址**：https://arxiv.org/pdf/{paper_info['id']}",
+            "content": f"**地址**：{paper_info['pdf_url']}",
             "tag": "lark_md"
         }
     }]
