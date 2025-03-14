@@ -1,0 +1,8 @@
+# 飞书机器人配置
+feishu_bot:
+  webhook_url: "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxxxxxxxxx"
+  webhook_secret: "xxxxxxxxxxxxxxxxxxxxxxx"
+
+# 定时任务配置
+schedule:
+  time: "10:30"  # 每天发送时间

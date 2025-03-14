@@ -9,10 +9,18 @@ from datetime import datetime
 
 import requests
 import schedule
+import yaml
 
-# 飞书机器人配置
-WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxxxxxxxxx"
-WEBHOOK_SECRET = "xxxxxxxxxxxxxxxxxxxxxxx"
+
+# 读取配置文件
+def load_config():
+    """加载配置文件"""
+    with open('config.yaml', 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+CONFIG = load_config()
+WEBHOOK_URL = CONFIG['feishu_bot']['webhook_url']
+WEBHOOK_SECRET = CONFIG['feishu_bot']['webhook_secret']
 
 def gen_sign(secret: str) -> tuple[str, str]:
     """生成飞书机器人签名"""
@@ -114,23 +122,21 @@ def send_feishu_message(timestamp: str, sign: str, elements: list) -> None:
 
 def main():
     """主函数"""
-    # 使用schedule库实现定时任务
-    
     def job():
         timestamp, sign = gen_sign(WEBHOOK_SECRET)
         papers = get_paper_info()
         
         for num, paper in enumerate(papers):
-            time.sleep(2)  # 避免请求过快
+            time.sleep(2)
             print(paper)
             
             elements = generate_card_elements(num, paper)
             send_feishu_message(timestamp, sign, elements)
     
-    # 设置每天上午10:30执行任务
-    schedule.every().day.at("10:30").do(job)
+    # 从配置文件读取定时发送时间
+    schedule_time = CONFIG['schedule']['time']
+    schedule.every().day.at(schedule_time).do(job)
     
-    # 持续运行，等待定时任务
     while True:
         schedule.run_pending()
         time.sleep(1)
