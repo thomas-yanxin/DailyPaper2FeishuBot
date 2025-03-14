@@ -1,7 +1,7 @@
 # Daily Papers 飞书同步机器人
 
 ## 项目简介  
-本项目通过飞书机器人实现[Hugging Face Daily Papers](https://github.com/huggingface/blog/blob/main/daily-papers.md)的每日自动同步，帮助团队高效追踪AI领域（尤其是LLM方向）的前沿研究[[1]][[2]]。机器人支持论文标题、摘要、关键词的自动抓取与格式化推送，并可选配中文解读和可视化图表[[7]][[8]]。
+本项目通过飞书机器人实现[Hugging Face Daily Papers](https://github.com/huggingface/blog/blob/main/daily-papers.md)的每日自动同步，帮助团队高效追踪AI领域（尤其是LLM方向）的前沿研究。机器人支持论文标题、摘要、作者等内容的自动抓取与格式化推送。
 
 
 ## 功能特性  
@@ -9,6 +9,12 @@
 ✅ **多格式支持**：支持文本、Markdown、富文本卡片等多种消息格式  
 ✅ **灵活配置**：可自定义推送时间、目标群组、内容筛选规则  
 ✅ **错误重试机制**：网络异常时自动重试3次并记录日志  
+
+## 快速使用
+
+1. 拿到飞书机器人的Webhook地址和签名密钥  
+2. 将Webhook地址和签名密钥填写在代码中
+3. 执行`python main.py`
 
 
 ## 消息示例  
